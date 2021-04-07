@@ -1,0 +1,7 @@
+{% load tethys_gizmos %}
+
+{% if temperature_plot %}
+  {% gizmo temperature_plot %}
+  {% gizmo precipitation_plot %}
+{% endif %}
+

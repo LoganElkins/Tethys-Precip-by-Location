@@ -1,0 +1,12 @@
+{% extends "precip_by_location/base.html" %}
+{% load tethys_gizmos %}
+
+{% block app_navigation_items %}
+  <li class="title">App Navigation</li>
+  <li class=""><a href="{% url 'precip_by_location:home' %}">Back</a></li>
+{% endblock %}
+
+{% block app_content %}
+  {% gizmo temperature_plot %}
+  {% gizmo precipitation_plot %}
+{% endblock %}
