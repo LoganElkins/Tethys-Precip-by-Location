@@ -5,7 +5,9 @@ import uuid
 import pymysql
 
 def getAllData(limit=None, distinct=False, testingHomePage=False, latitude=None, longitude=None, location_id=None):
-    sqlEngine = create_engine('mysql+pymysql://tethys_user:hfpGx6,zp@66.228.52.5', pool_recycle=3600)
+    user = ""
+    passwd = ""
+    sqlEngine = create_engine('mysql+pymysql://{user}:{passwd}@66.228.52.5'.format(user=username, passwd=password), pool_recycle=3600)
     dbConnection = sqlEngine.connect()
     df = pd.DataFrame()
     if testingHomePage:
