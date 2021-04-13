@@ -27,8 +27,9 @@ $(function() {
             var coordinates = selected_feature.getGeometry().getCoordinates();
 
             var popup_content = '<div class="location-popup">' +
-                                    '<h5>' + selected_feature.get('location_id') + '</h5>' +
-                                    '<a href=/apps/precip-by-location/graphs/' + selected_feature.get('location_id') +'>See graphs for this location</a>' +
+                                    '<h3>' + selected_feature.get('county_state') + '</h3>' +
+                                    '<h6>' + selected_feature.get('latitude') + ', ' + selected_feature.get('longitude') + '</h6>' +
+                                    '<div id="plot-content"></div>' +
                                     '</div>';
 
             // Clean up last popup and reinitialize

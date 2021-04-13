@@ -30,20 +30,15 @@ class PrecipByLocation(TethysAppBase):
                 controller='precip_by_location.controllers.home'
             ),
             UrlMap(
-                name='data',
-                url='precip-by-location/data',
-                controller='precip_by_location.controllers.list_data'
-            ),
-            UrlMap(
-                name='graph',
-                url='precip-by-location/graphs/{locID}',
-                controller='precip_by_location.controllers.graph'
-            ),
-            UrlMap(
                 name='graph_ajax',
                 url='precip-by-location/graphs/{locID}/ajax',
                 controller='precip_by_location.controllers.graph_ajax'
             ),
+            UrlMap(
+                name='graph',
+                url='precip-by-location/graph',
+                controller='precip_by_location.controllers.graph'
+            )
         )
 
         return url_maps

@@ -22,9 +22,9 @@ def create_graph(locID, height='520px', width='100%'):
     for i in range(len(prcp)):
         if i != 0:
             prcp[i] = prcp[i] + prcp[i-1]
-    data = [go.Scatter(x=months, y=avgTemp, name="Average Temperature"), go.Scatter(x=months, y=minTemp, name="Minimum Temperature"), go.Scatter(x=months, y=maxTemp, name="Maximum Temperature")]
+    data = [go.Scatter(x=months, y=avgTemp, name="Avg Temperature"), go.Scatter(x=months, y=minTemp, name="Min Temperature"), go.Scatter(x=months, y=maxTemp, name="Max Temperature")]
     layout = {
-        'title': 'Tepmerature From Last Nine Months for {0}, {1}'.format(latitude, longiude),
+        'title': 'Tepmerature Data for {0}, {1}'.format(latitude, longiude),
         'xaxis': {'title': 'Time'},
         'yaxis': {'title': 'Temperature (F)'}
     }
@@ -39,4 +39,3 @@ def create_graph(locID, height='520px', width='100%'):
     figure = {'data': data, 'layout': layout}
     precipitation_plot = PlotlyView(figure, height=height, width=width)
     return temperature_plot, precipitation_plot
-    

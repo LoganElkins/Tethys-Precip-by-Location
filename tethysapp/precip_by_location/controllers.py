@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, reverse, redirect
+from django.contrib import messages
 from tethys_sdk.workspaces import app_workspace
 from tethys_sdk.permissions import login_required
-from tethys_sdk.gizmos import Button, MapView, DataTableView, MVLayer, MVView
-from .model import getAllData
+from tethys_sdk.gizmos import Button, MapView, DataTableView, MVLayer, MVView, TextInput
+from .model import getAllData, getLocID, getClosestLatLong
 from .helpers import create_graph
 import pandas as pd
 
@@ -30,6 +31,7 @@ def home(request):
                 'location_id': row['location_id'],
                 'latitude': row['latitude'],
                 'longitude': row['longitude'],
+                'county_state': row['county_state'],
                 'prcp': row['prcp'],
                 'tave': row['tave'],
                 'tmin': row['tmin'],
@@ -52,10 +54,10 @@ def home(request):
         'image': {'ol.style.Circle': {
             'radius': 1,
             'fill': {'ol.style.Fill': {
-                'color':  '#d84e1f'
+                'color':  'rgba(255, 255, 0, 0.01)'
             }},
             'stroke': {'ol.style.Stroke': {
-                'color': '#ffffff',
+                'color': 'rgba(255, 255, 0, 0.01)',
                 'width': 1
             }}
         }}
@@ -97,45 +99,78 @@ def home(request):
     return render(request, 'precip_by_location/home.html', context)
 
 
-@app_workspace
-@login_required()
-def list_data(request, app_workspace):
-    data = getAllData(100)
-    table_rows = []
-    for index, row in data.iterrows():
-        table_rows.append((row['latitude'], row['longitude'], row['prcp'], row['tave'], row['tmax'], row['tmin']))
-    
-    data_table = DataTableView(
-        column_names=('Latitude', 'Longitude', 'Prcp', 'Tave', 'Tmax', 'Tmin'),
-        rows = table_rows,
-        searching=False,
-        orderClasses=False,
-        lengthMenu = [[10, 25, 50, -1], [10, 25, 50, "All"]],
-    )
-
-    context = {
-        'data_table': data_table
-    }
-
-    return render(request, 'precip_by_location/list_data.html', context)
-
-
-@login_required()
-def graph(request, locID):
-    temperature_plot, precipitation_plot = create_graph(locID)
-    context = {
-        'temperature_plot': temperature_plot,
-        'precipitation_plot': precipitation_plot
-    }
-    return render(request, 'precip_by_location/graph.html', context)
-
-
 @login_required()
 def graph_ajax(request, locID):
-    print("\n\n\nINSIDE GRAPH_AJAX FUNCTION\n\n")
     temperature_plot, precipitation_plot = create_graph(locID)
     context = {
         'temperature_plot': temperature_plot,
         'precipitation_plot': precipitation_plot
     }
     return render(request, 'precip_by_location/graph_ajax.html', context)
+
+
+@login_required()
+def graph(request):
+    latitude_error = ''
+    longitude_error = ''
+    lat_input = TextInput(
+        display_text='Latitude',
+        name='latitude',
+        error=latitude_error
+        )
+    long_input = TextInput(
+        display_text='Longtiude',
+        name='longitude',
+        error=longitude_error
+        )
+
+    submit_button = Button(
+        display_text='Submit',
+        name='submit-button',
+        icon='glyphicon glyphicon-ok',
+        style='success',
+        attributes={'form': 'view-graphs-form'},
+        submit=True,
+    )
+
+    cancel_buton = Button(
+        display_text='Cancel',
+        name='cancel-button',
+        icon='glyphicon glyphicon-remove',
+        href=reverse('precip_by_location:home')
+    )
+    context = {
+                'lat_input': lat_input,
+                'long_input': long_input,
+                'submit_button': submit_button,
+                'cancel_button': cancel_buton
+            }
+    if request.POST and 'submit-button' in request.POST:
+        import time
+        start_time = time.time()
+        has_errors = False
+        latitude = request.POST.get('latitude', None)
+        longitude = request.POST.get('longitude', None)
+        
+        if not latitude:
+            has_errors = True
+            latitude_error = 'Latitude is required'
+
+        if not longitude:
+            has_errors = True
+            longitude_error = 'Longtiude is required'
+        
+        if not has_errors:
+            #create the graphs here and return the render and stuff
+            latitude, longitude = getClosestLatLong(latitude, longitude)
+            temperature_plot, precipitation_plot = create_graph(getLocID(latitude, longitude))
+            context['temperature_plot'] = temperature_plot
+            context['precipitation_plot'] = precipitation_plot
+            print("--- %s seconds to generate---" % (time.time() - start_time))
+            return render(request, 'precip_by_location/graph.html', context)
+        
+        messages.error(request, "Please fix errors.")
+    
+
+    
+    return render(request, 'precip_by_location/graph.html', context)

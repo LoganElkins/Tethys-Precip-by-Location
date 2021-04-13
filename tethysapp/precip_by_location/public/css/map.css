@@ -1,10 +1,12 @@
 .popover-content {
-    width: 400px;
+    width: 600px;
     max-height: 300px;
     overflow-y: auto;
+    text-align: center;
 }
 
 .popover {
+    width: 600px;
     max-width: none;
 }
 

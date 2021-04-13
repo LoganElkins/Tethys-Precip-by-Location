@@ -15,9 +15,10 @@
 {% block app_navigation_items %}
   {% url 'precip_by_location:home' as home_url %}
   {% url 'precip_by_location:data' as data_url %}
+  {% url 'precip_by_location:graph' as graph_url %}
   <li class="title">Navigation</li>
   <li class="{% if request.path == home_url %}active{% endif %}"><a href="{{ home_url }}">Home</a></li>
-  <li class="{% if request.path == data_url %}active{% endif %}"><a href="{{ data_url }}">View Data</a></li>
+  <li class="{% if request.path == graph_url %}active{% endif %}"><a href="{{ graph_url }}">View Graph for Specific Point</a></li>
 {% endblock %}
 
 

@@ -9,7 +9,7 @@ requirements:
   conda:
     channels:
     packages:
-
+      - pymysql
   pip:
 
 post:

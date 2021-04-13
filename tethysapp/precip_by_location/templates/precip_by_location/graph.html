@@ -7,6 +7,23 @@
 {% endblock %}
 
 {% block app_content %}
-  {% gizmo temperature_plot %}
-  {% gizmo precipitation_plot %}
+<h1> View Temperature and Precipation Data</h1>
+<form id='view-graphs-form' method="post">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td>{% gizmo lat_input %}</td>
+            <td>{% gizmo long_input %}</td>
+        </tr>
+    </table>
+</form>
+    {% if temperature_plot %}
+        {% gizmo temperature_plot %}
+        {% gizmo precipitation_plot %}
+    {% endif %}
+{% endblock %}
+
+{% block app_actions %}
+    {% gizmo cancel_button %}
+    {% gizmo submit_button %}
 {% endblock %}

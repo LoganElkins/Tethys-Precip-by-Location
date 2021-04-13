@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from scipy.spatial import KDTree
 import pandas as pd
 import os
 import uuid
@@ -31,9 +32,31 @@ def getAllData(limit=None, distinct=False, testingHomePage=False, latitude=None,
     return df
 
 def getLatLong(location_id):
-    sqlEngine = create_engine('mysql+pymysql://tethys_user:hfpGx6,zp@66.228.52.5', pool_recycle=3600)
+    username = ""
+    password = ""
+    sqlEngine = create_engine('mysql+pymysql://{user}:{passwd}@66.228.52.5'.format(user=username, passwd=password), pool_recycle=3600)
     dbConnection = sqlEngine.connect()
     df = pd.read_sql("select * from tethys_data.nine_month_avg_location_ids where location_id = {locID};".format(locID=location_id), dbConnection)
     latitude = df['latitude'][0]
     longtiude = df['longitude'][0]
     return latitude, longtiude
+
+
+def getLocID(latitude, longitude):
+    username = ""
+    password = ""
+    sqlEngine = create_engine('mysql+pymysql://{user}:{passwd}@66.228.52.5'.format(user=username, passwd=password), pool_recycle=3600)
+    dbConnection = sqlEngine.connect()
+    df = pd.read_sql("select distinct location_id from tethys_data.nine_month_avg_location_ids where latitude = {lat} and longitude = {long};".format(lat=latitude, long=longitude), dbConnection)
+    return df['location_id'][0]
+
+def getClosestLatLong(latitude, longitude):
+    username = ""
+    password = ""
+    sqlEngine = create_engine('mysql+pymysql://{user}:{passwd}@66.228.52.5'.format(user=username, passwd=password), pool_recycle=3600)
+    dbConnection = sqlEngine.connect()
+    df = pd.read_sql("SELECT distinct latitude, longitude FROM tethys_data.nine_month_avg_location_ids order by latitude asc, longitude asc", dbConnection)
+    df_array = df.to_numpy()
+    kdtree = KDTree(df_array)
+    d, i = kdtree.query((latitude, longitude))
+    return df_array[i][0], df_array[i][1]
