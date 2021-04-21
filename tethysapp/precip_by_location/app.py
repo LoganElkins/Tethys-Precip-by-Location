@@ -1,4 +1,5 @@
 from tethys_sdk.base import TethysAppBase, url_map_maker
+from tethys_sdk.app_settings import PersistentStoreDatabaseSetting
 
 
 class PrecipByLocation(TethysAppBase):
@@ -42,3 +43,14 @@ class PrecipByLocation(TethysAppBase):
         )
 
         return url_maps
+    
+    def persistent_store_settings(self):
+        ps_settings = (
+            PersistentStoreDatabaseSetting(
+                name='primary_db',
+                description='primary database',
+                initializer='precip_by_location.model.initPrimaryDB',
+                required=True
+            ),
+        )
+        return ps_settings

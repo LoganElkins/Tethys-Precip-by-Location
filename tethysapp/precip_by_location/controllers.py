@@ -3,7 +3,7 @@ from django.contrib import messages
 from tethys_sdk.workspaces import app_workspace
 from tethys_sdk.permissions import login_required
 from tethys_sdk.gizmos import Button, MapView, DataTableView, MVLayer, MVView, TextInput
-from .model import getAllData, getLocID, getClosestLatLong
+from .model import getAllData, getLocID, getClosestLatLong, getAllLocations
 from .helpers import create_graph
 import pandas as pd
 
@@ -13,29 +13,28 @@ def home(request):
     Controller for the app home page.
     """
 
-    data = getAllData(testingHomePage=True)
+    locations = getAllLocations()
     features = []
     lat_list = []
     long_list = []
-
-    for index, row in data.iterrows():
-        lat_list.append(row['latitude'])
-        long_list.append(row['longitude'])
+    for location in locations:
+        lat_list.append(location.latitude)
+        long_list.append(location.longitude)
         location_feature = {
             'type': 'Feature',
             'geometry': {
                 'type': 'Point',
-                'coordinates': [row['longitude'], row['latitude']],
+                'coordinates': [location.longitude, location.latitude],
             },
             'properties':{
-                'location_id': row['location_id'],
-                'latitude': row['latitude'],
-                'longitude': row['longitude'],
-                'county_state': row['county_state'],
-                'prcp': row['prcp'],
-                'tave': row['tave'],
-                'tmin': row['tmin'],
-                'tmax': row['tmax']
+                'location_id': location.location_id,
+                'latitude': location.latitude,
+                'longitude': location.longitude,
+                'county_state': location.county_state,
+                'prcp': location.prcp,
+                'tave': location.tave,
+                'tmin': location.tmin,
+                'tmax': location.tmax
             }
         }
         features.append(location_feature)
@@ -53,11 +52,8 @@ def home(request):
     style = {'ol.style.Style': {
         'image': {'ol.style.Circle': {
             'radius': 1,
-            'fill': {'ol.style.Fill': {
-                'color':  'rgba(255, 255, 0, 0.01)'
-            }},
             'stroke': {'ol.style.Stroke': {
-                'color': 'rgba(255, 255, 0, 0.01)',
+                'color': 'rgba(255, 0, 0, 0.01)',
                 'width': 1
             }}
         }}
@@ -163,7 +159,7 @@ def graph(request):
         if not has_errors:
             #create the graphs here and return the render and stuff
             latitude, longitude = getClosestLatLong(latitude, longitude)
-            temperature_plot, precipitation_plot = create_graph(getLocID(latitude, longitude))
+            temperature_plot, precipitation_plot = create_graph(getLocID(latitude, longitude), latitude, longitude)
             context['temperature_plot'] = temperature_plot
             context['precipitation_plot'] = precipitation_plot
             print("--- %s seconds to generate---" % (time.time() - start_time))
